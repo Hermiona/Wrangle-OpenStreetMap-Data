@@ -7,6 +7,9 @@ from collections import defaultdict
 import re
 
 #street_type_re = re.compile(r'\b\S+\.?$', re.IGNORECASE)
+phone_re = re.compile(r'\+?996[\-\(]?[0-9]{3}[\-\)]?[0-9]{2}\-?[0-9]{2}\-?[0-9]{2}')
+phone_re1 = re.compile(r'0[0-9]{3}\-?[0-9]{2}\-?[0-9]{2}\-?[0-9]{2}')
+website_re = re.compile(r'https?://[a-z0-9\./]*')
 
 expected_streets = [unicode("улица", 'utf8'), unicode("переулок", 'utf8'), unicode("проспект", 'utf8'), unicode("площадь", 'utf8'), unicode("микрорайон", 'utf8'), unicode("тупик", 'utf8'), unicode("бульвар", 'utf8')]
 
@@ -85,11 +88,32 @@ def audit_postcode(filename):
                             unexpected_postcodes[postcode] += 1
     return unexpected_postcodes
 
+def match_phone(phone):
+    return phone_re.match(phone) or phone_re1.match(phone)
+
 def audit_phone(filename):
-    return None
+    unexpected_phones = []
+    with open(filename, 'r') as file:
+        for _, elem in ET.iterparse(file, events=("start",)):
+            if elem.tag == "node" or elem.tag == "way":
+                for tag in elem.iter("tag"):
+                    if tag.attrib['k'] == "phone":
+                        phone = tag.attrib['v'].replace(" ", "")
+                        if not match_phone(phone):
+                            unexpected_phones.append(phone)
+    return unexpected_phones
 
 def audit_website(filename):
-    return None
+    unexpected_websites = []
+    with open(filename, 'r') as file:
+        for _, elem in ET.iterparse(file, events=("start",)):
+            if elem.tag == "node" or elem.tag == "way":
+                for tag in elem.iter("tag"):
+                    if tag.attrib['k'] == "website":
+                        website = tag.attrib['v']
+                        if not website_re.match(website):
+                            unexpected_websites.append(website)
+    return unexpected_websites
 
 if __name__ == '__main__':
     audit_option = sys.argv[1]
@@ -108,8 +132,12 @@ if __name__ == '__main__':
         for code, count in post_codes.items():
             print(code + " | " + str(count))
     elif audit_option == "phone":
-        audit_phone(audit_filename)
+        phones = audit_phone(audit_filename)
+        for phone in phones:
+            print(phone)
     elif audit_option == "website":
-        audit_website(audit_filename)
+        websites = audit_website(audit_filename)
+        for website in websites:
+            print(website)
     else:
         print "Incorrect audit option. Choose from: street, postcode, phone, website."
