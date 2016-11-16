@@ -39,18 +39,13 @@ street_mapping = {
             }
 
 def audit_street_type(street_types, street_name):
-    #m = street_type_re.search(street_name)
-    #if m:
-    #   street_type = unicode(m.group())
-    if True:
-        #street_type = unicode(street_name)
-        street_type = unicode(street_name.strip().split(" ")[-1])
+    street_type = unicode(street_name.strip().split(" ")[-1])
+    if street_type not in expected_streets and street_type not in street_mapping:
+        street_type = unicode(street_name.strip().split(" ")[0])
         if street_type not in expected_streets and street_type not in street_mapping:
-            street_type = unicode(street_name.strip().split(" ")[0])
-            if street_type not in expected_streets and street_type not in street_mapping:
-                street_type_prefix = unicode(street_name.strip().split(" ")[0][:4])
-                if street_type_prefix not in expected_streets and street_type_prefix not in street_mapping:
-                    street_types[street_type].add(unicode(street_name))
+            street_type_prefix = unicode(street_name.strip().split(" ")[0][:4])
+            if street_type_prefix not in expected_streets and street_type_prefix not in street_mapping:
+                street_types[street_type].add(unicode(street_name))
 
 def audit_street(filename):
     street_types = defaultdict(set)
