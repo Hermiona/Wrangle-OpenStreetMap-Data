@@ -3,11 +3,7 @@ import xml.etree.cElementTree as ET
 def is_valid_postcode(postcode):
     if len(postcode) != 6 or postcode[:2] != "72":
         return False
-    try:
-        int(postcode)
-    except ValueError:
-        return False
-    return True
+    return postcode.isdigit()
 
 def audit_postcode(filename):
     unexpected_postcodes = {}
