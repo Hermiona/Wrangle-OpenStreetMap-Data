@@ -2,8 +2,11 @@ import xml.etree.cElementTree as ET
 import re
 import requests
 
+# Regex for website address in standard format
+# (which follows best practices from https://wiki.openstreetmap.org/wiki/Key:website)
 website_re = re.compile(r'https?://[a-z0-9\./]*')
 
+# Returns list of websites which are not in standard format
 def audit_website(filename):
     unexpected_websites = []
     with open(filename, 'r') as file:
@@ -16,6 +19,7 @@ def audit_website(filename):
                             unexpected_websites.append(website)
     return unexpected_websites
 
+# Creates new osm xml file with websites in standard format
 def clean_website(filename):
     tree = ET.parse(filename)
     root = tree.getroot()

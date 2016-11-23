@@ -1,10 +1,12 @@
 import xml.etree.cElementTree as ET
 
+# Checks if the postcode is valid for Kyrgyzstan
 def is_valid_postcode(postcode):
     if len(postcode) != 6 or postcode[:2] != "72":
         return False
     return postcode.isdigit()
 
+# Returns dictionary of unexpected for Kyrgyzstan postcodes and count of their occurancies
 def audit_postcode(filename):
     unexpected_postcodes = {}
     with open(filename, 'r') as file:
@@ -19,7 +21,8 @@ def audit_postcode(filename):
                             unexpected_postcodes[postcode] += 1
     return unexpected_postcodes
 
-def clear_postcode(filename):
+# Createds new osm xml file with valid for Kyrgyzstan postcodes
+def clean_postcode(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
     for child in root:
@@ -29,4 +32,4 @@ def clear_postcode(filename):
                     postcode = tag.attrib['v']
                     if not is_valid_postcode(postcode):
                         child.remove(tag)
-    tree.write("cleared_postcode_" + filename, encoding='utf-8')
+    tree.write("cleaned_postcode_" + filename, encoding='utf-8')

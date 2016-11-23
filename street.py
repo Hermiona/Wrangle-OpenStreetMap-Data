@@ -4,9 +4,13 @@ from bs4 import BeautifulSoup
 import requests
 import urllib2
 
-kyrgyz_post_bishkek_url = "http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=35&e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9"
+# url of page of kyrgyz post website, which contains the most of existing streets in Kyrgyzstan (but not all)
 kyrgyz_post_url = "http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9"
+
+# list of possible full street types
 expected_street_types = [unicode("улица", 'utf8'), unicode("переулок", 'utf8'), unicode("проспект", 'utf8'), unicode("площадь", 'utf8'), unicode("микрорайон", 'utf8'), unicode("тупик", 'utf8'), unicode("бульвар", 'utf8'), unicode("село", 'utf8')]
+
+# map from abbreviations and misspellings of street types to the full street types
 street_type_mapping = {
             unicode("ул", 'utf8'): unicode("улица", 'utf8'),
             unicode("ул.", 'utf8'): unicode("улица", 'utf8'),
@@ -38,6 +42,8 @@ street_type_mapping = {
             unicode("Avenue", 'utf8'): unicode("проспект", 'utf8'),
             unicode("blvrd.", 'utf8'): unicode("бульвар", 'utf8')
             }
+
+# manually prepared map from some street names (which exist, but not presented on kyrgyz post site) to the street names with street types
 manual_street_name_mapping = {
     unicode("Джал-15 (Джал Артис)", 'utf8'): unicode("Джал Арча микрорайон", 'utf8'),
     unicode("Озёрная", 'utf8'): unicode("Oзерная улица", 'utf8'),
@@ -71,19 +77,7 @@ manual_street_name_mapping = {
     unicode("Дабан", 'utf8'): unicode("Дабан улица", 'utf8')
 }
 
-
-def get_expected_streets(url):
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, "lxml")
-    tds = []
-    for table in soup.find_all("table"):
-        for td in table.find_all("td"):
-            tds.append(td.get_text().strip())
-    expected_streets = set()
-    for street in tds[::3]:
-        expected_streets.add(street)
-    return expected_streets
-
+# Returns list of streets from osm xml, which doesn't have an expected street type in the end
 def audit_street(filename):
     unexpected_streets = set()
     with open(filename, 'r') as file:
@@ -95,6 +89,19 @@ def audit_street(filename):
                         if unicode(raw_street.strip().split(" ")[-1]) not in expected_street_types:
                             unexpected_streets.add(raw_street)
     return unexpected_streets
+
+# Takes url (hardcoded url of kyrgyz post website) and returns set of existing street names with street types
+def get_expected_streets(url):
+    page = requests.get(url)
+    soup = BeautifulSoup(page.text, "lxml")
+    tds = []
+    for table in soup.find_all("table"):
+        for td in table.find_all("td"):
+            tds.append(td.get_text().strip())
+    expected_streets = set()
+    for street in tds[::3]:
+        expected_streets.add(street)
+    return expected_streets
 
 # Takes a string of raw street and returns it with street type in standard format if possible. Otherwise returns None.
 def fix_street_type(raw_street):
@@ -141,7 +148,7 @@ def fix_street(raw_street, expected_streets):
     return fixed_street
 
 
-
+# Creates new osm xml file, which contains all streets in standard format: <street name> <full street type>
 def clean_street(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
