@@ -56,7 +56,7 @@ def is_valid_postcode(postcode):
     return postcode.isdigit()
 ```
 
-After look of invalid postcodes we can see that some of them are probably just typos, but some are clearly a randomly typed digits:
+After look of invalid postcodes we can see that some of them are probably just typos(7220082, 730077), but some are clearly a randomly typed digits(1234, 12345):
 ```python
 postcode | count
 1234     | 1
