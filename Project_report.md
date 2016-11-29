@@ -22,6 +22,31 @@ After downloading map of the Bishkek area and running audit functions, I noticed
 ### Streets cleaning
 At first, I decided to change street type so the street field had format: ```<street name> <full street type>```. For this I implemented function fix_street_type in street.py. This function checks the beginning and the end of raw street value and correct abbreviated or translated street type to their respective mappings. Also this function handle consistency of street type position: it places corrected street type after street name.
 
+To deal with correcting streets without street types I did two things:
+* tried to get obbreviated street type by street name from [offical kyrgyz post site](http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9)
+* got street type from manually prepared map of 30 existing street names
+
+So the street correction function looked like:
+```python 
+def fix_street(raw_street, expected_streets):
+    # Check manually prepared map of existing raw streets
+    if raw_street in manual_street_name_mapping:
+        return manual_street_name_mapping[raw_street]
+    # Try to fix street type to standard format
+    fixed_street = fix_street_type(raw_street)
+    if fixed_street == None:
+        # Try to get street type from expected streets (from kyrgyz post website)
+        matched_street = None
+        for street in expected_streets:
+            if street.find(raw_street.strip()) != -1:
+                matched_street = street
+                break
+        fixed_street = fix_street_type(matched_street)
+        if fixed_street == None:
+            return None
+    return fixed_street
+```
+
 
 
 
