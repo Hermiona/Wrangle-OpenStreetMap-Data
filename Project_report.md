@@ -73,7 +73,14 @@ Anyway, I removed all invalid postcodes, because they are useless.
 ### Phones cleaning
 
 ### Websites cleaning
+OpenStreetMap wiki advises to include the scheme (http or https) in website format. So I check if website values follows this advice:
+```python
+website = re.compile(r'https?://[a-z0-9\./]*')
 
+def url_is_good(url):
+    return website_re.match(url)
+```
+For thouse websites, which doesn't have scheme, I add scheme http to them, because not every website uses https scheme. Some possibilites to add https scheme will be described in the last section.
 
 ## Overview of Data
 
