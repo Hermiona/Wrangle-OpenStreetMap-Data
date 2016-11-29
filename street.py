@@ -137,12 +137,12 @@ def fix_street(raw_street, expected_streets):
     fixed_street = fix_street_type(raw_street)
     if fixed_street == None:
         # Try to get street type from expected streets (from kyrgyz post website)
-        expected_street = None
+        matched_street = None
         for street in expected_streets:
             if street.find(raw_street.strip()) != -1:
-                expected_street = street
+                matched_street = street
                 break
-        fixed_street = fix_street_type(expected_street)
+        fixed_street = fix_street_type(matched_street)
         if fixed_street == None:
             return None
     return fixed_street
