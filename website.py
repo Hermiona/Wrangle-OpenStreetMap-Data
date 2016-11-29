@@ -4,7 +4,7 @@ import requests
 
 # Regex for website address in standard format
 # (which follows best practices from https://wiki.openstreetmap.org/wiki/Key:website)
-good_website = re.compile(r'https?://[a-z0-9\./]*')
+website_re = re.compile(r'https?://[a-z0-9\./]*')
 
 def url_is_good(url):
     return website_re.match(url)
