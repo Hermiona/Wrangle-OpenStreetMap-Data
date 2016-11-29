@@ -57,7 +57,7 @@ def audit_phone(filename):
                 for tag in elem.iter("tag"):
                     if tag.attrib['k'] == "phone":
                         phone = tag.attrib['v']
-                        if not formatted_phone_re.match:
+                        if not formatted_phone_re.match(phone):
                             unexpected_phones.append(phone)
     return unexpected_phones
 
@@ -83,6 +83,7 @@ def clean_phone(filename):
                     if len(fixed_phones) == 1:
                         fixed_phone = fixed_phones[0]
                         if fixed_phone == None:
+                            print(raw_phone)
                             child.remove(tag)
                         else:
                             tag.attrib['v'] = fixed_phone
