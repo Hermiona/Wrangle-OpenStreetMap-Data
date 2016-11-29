@@ -14,7 +14,7 @@ After downloading map of the Bishkek area and running audit functions, I noticed
 * Over­abbreviated street types with inconsistent position: ```"ул. Масыралиева”, "Асанбай мкр.", "Kiev Str"```
 * Street names without street type: ```"Ореховая", "Восток-5", "Щорса"```
 * Incorrect postal codes: ```"12345", "7220082", "772200"```
-* Inconsistent phone numbers,  ```"+996 555 70 70 74", "(312) 890257", "0(312)54-49-25", "325528"```
+* Inconsistent phone number formats,  ```"+996 555 70 70 74", "(312) 890257", "0(312)54-49-25", "325528"```
 * Multiple phone numbers in different formats: ``` "+996 312 596570, +996 312 596494", "0(312)88-14-14 0(556)11-22-33"```
 * Incorrect phone numbers: ```"+99655804111", "+9963122115"```
 * Format of website links doesn't follow best practices of OpenStreetMap: ```"grenki.kg", "www.android.kg"```
@@ -71,16 +71,26 @@ postcode | count
 Anyway, I removed all invalid postcodes, because they are useless.
 
 ### Phones cleaning
+Audit of phone numbers showed that there are 200 phones which are not presented in the advised in [OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Key:phone) format: ```+<country code> <city code> <local number>```. Besides difference created by formatting(like city code in parenthesis, hyphens in local number, additional spaces etc), there are several possible represenations of valid phone number for Bishkek area. This is how, for example, a valid phone +996 312 613238 could be represented:
+* 0996 312 613238
+* 9960 312 613238
+* 0 312 613238
+* 312 613238
+* 613238
+
+The function fix_format from phone.py changes any of this possible representations of valid phones (which match regex ```(996|0|9960|0996)?([0-9]{3})?[0-9]{6}$```) to the phone number in advised format (which match regex ```\+996\s[0-9]{3}\s[0-9]{6}(;\s)?)+$```).
+
+The other problem was that some phone numbers are actually several phone numbers, divided by spaces, commas or semicolons. So clean_phone function from phone.py handles this by dividing different phones into list and fixing format of each phone number separately. Then formatted results are joining with separation by semicolons (which is more common for multiple entries in OpenStreetMap data).
 
 ### Websites cleaning
-OpenStreetMap wiki advises to include the scheme (http or https) in website format. So I check if website values follows this advice:
+[OpenStreetMap wiki](https://wiki.openstreetmap.org/wiki/Key:website) advises to include the scheme (http or https) in website format. So I check if website values follows this advice:
 ```python
 website = re.compile(r'https?://[a-z0-9\./]*')
 
 def url_is_good(url):
     return website_re.match(url)
 ```
-For thouse websites, which doesn't have scheme, I add scheme http to them, because not every website uses https scheme. Some possibilites to add https scheme will be described in the last section.
+For thouse websites, which doesn't have scheme, I add scheme http, because not every website uses https scheme. Some possibilites to add https scheme will be described in the last section.
 
 ## Overview of Data
 
