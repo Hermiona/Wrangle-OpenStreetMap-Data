@@ -3,7 +3,7 @@
 #### Map Area
 Bishkek, Kyrgyzstan
 
-This is map of the city where I was born, so it was interesting to me to see what database querying reveals, and liked the opportunity to contribute to its improvement on OpenStreetMap.org.
+This is map of the city where I was born, so it was interesting to me to see what database querying reveals, and I liked the opportunity to contribute to its improvement on OpenStreetMap.org.
 Unfortunately, Bishkek wasn't amongst preselected metro areas, so I used MapZen to make custom extract with boudaries 74.5037007989, 42.7787328152, 74.6717525572, 42.9377928738. As extracted area is rectangular, it contains some adjacent to Bishkek areas, so in the following analysis we should keep it in mind. The extract was created on 2016 November 15, at 01:48 AM and could be found [here](https://mapzen.com/data/metro-extracts/your-extracts/14f307f3f854).
 
 ## Problems Encountered in the Map
@@ -47,11 +47,28 @@ def fix_street(raw_street, expected_streets):
     return fixed_street
 ```
 
-
-
-
-
 ### Postal codes cleaning
+As was mentioned above, processed dataset contains data for Bishkek and some adjacent areas. So I didn't require postal code to be valid only for Bishkek. Otherwise, I only checked if it's valid for Kyrgyzstan: it has to be exacly six digits and first two digits should be "72". So here is the postcode validity function:
+```python
+def is_valid_postcode(postcode):
+    if len(postcode) != 6 or postcode[:2] != "72":
+        return False
+    return postcode.isdigit()
+```
+
+After look of invalid postcodes we can see that some of them are probably just typos, but some are clearly a randomly typed digits:
+```python
+postcode | count
+1234     | 1
+11       | 1
+772200   | 3
+7220082  | 11
+1        | 1
+12345    | 1
+730077   | 2
+```
+
+Anyway, I removed all invalid postcodes, because they are useless.
 
 ### Phones cleaning
 
@@ -64,6 +81,7 @@ def fix_street(raw_street, expected_streets):
 ## Other ideas about dataset
 * language of street names
 * old and new street names
+* add postcodes by street address
 * check if the three-digit short phone number exists
 * check if the websites are reachable using requests
  
