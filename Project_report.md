@@ -109,14 +109,107 @@ ways_nodes.cv ......... 10.2 MB
 ```sql
 sqlite> SELECT COUNT(*) FROM nodes;
 ```
+```
 515172
-
+```
 ## Number of ways
 ```sql
 sqlite> SELECT COUNT(*) FROM ways;
 ```
+```
 116417
+```
+## Number of unique users
+```sql
+sqlite> SELECT COUNT(*) 
+FROM (SELECT uid FROM nodes UNION SELECT uid FROM ways);
+```
+```
+687
+```
+## Top 15 amenities
+```sql
+sqlite> SELECT value, COUNT(*) as num 
+FROM nodes_tags WHERE key='amenity' 
+GROUP BY value 
+ORDER BY num DESC LIMIT 15;
+```
+```
+cafe             | 382
+pharmacy         | 197
+parking          | 126
+car_wash         | 123
+restaurant       | 123
+fuel             | 94
+bank             | 92
+atm              | 77
+fast_food        | 77
+hospital         | 75
+bench            | 65
+police           | 61
+payment_terminal | 53
+kindergarten     | 43
+bar              | 40
+```
+## Top 10 cuisines
+```sql
+sqlite> SELECT value, COUNT(*) as num 
+FROM nodes_tags WHERE key='cuisine' 
+GROUP BY value 
+ORDER BY num DESC LIMIT 10;
+```
+```
+regional      | 23
+international | 19
+chinese       | 9
+asian         | 7
+coffee_shop   | 7
+burger        | 6
+korean        | 6
+turkish       | 6
+italian       | 5
+pizza         | 5
+```
+## The top 10 streets with the largest number of associated nodes
 
+```sql
+sqlite> SELECT ways_tags.value, COUNT(ways_nodes.node_id) as num 
+FROM ways_nodes JOIN ways_tags 
+WHERE ways_nodes.id=ways_tags.id AND ways_tags.key='street' 
+GROUP BY ways_nodes.id 
+ORDER BY num DESC LIMIT 10;
+```
+```
+Тоголок Молдо улица        | 78
+Токтогула улица            | 64
+Талаа улица                | 60
+Профсоюзная улица          | 51
+Московская улица           | 47
+7 микрорайон               | 44
+Эркиндик бульвар           | 43
+Ахунбаева Исы улица        | 42
+Сыдыкова улица             | 42
+Уметалиева Темиркула улица | 41
+```
+## The top 10 nodes with the largest number of corrections
+```sql
+>sqlite SELECT nodes_tags.value, nodes.version 
+FROM nodes JOIN nodes_tags 
+WHERE nodes.id = nodes_tags.id AND nodes_tags.key='name' 
+ORDER BY nodes.version DESC LIMIT 10;
+```
+```
+Бишкек                        | 45
+ОсОО "Хостер kg"              | 29
+Славянский Восток             | 18
+Интернет Магазин XPERT.KG     | 11
+Sierra Coffee                 | 11
+Скульптурный комплекс "Манас" | 10
+Народный (Панфилова)          | 10
+Колобок                       | 9
+Alex.kg                       | 9
+Библиотека №5                 | 9
+```
 ## Other ideas about dataset
 * language of street names
 * old and new street names
