@@ -83,7 +83,6 @@ def clean_phone(filename):
                     if len(fixed_phones) == 1:
                         fixed_phone = fixed_phones[0]
                         if fixed_phone == None:
-                            print(raw_phone)
                             child.remove(tag)
                         else:
                             tag.attrib['v'] = fixed_phone
