@@ -93,7 +93,29 @@ def url_is_good(url):
 For thouse websites, which doesn't have scheme, I add scheme http, because not every website uses https scheme. Some possibilites to add https scheme will be described in the last section.
 
 ## Overview of Data
+This section contains some overview statistics about the dataset and the SQL queries used to gather them.
 
+## File sizes
+```
+Bishkek.osm ...........121.0 MB
+Bishkek.db ............ 64.6 MB
+nodes.csv ............. 42.0 MB
+nodes_tags.csv ........  0.6 MB
+ways.csv ..............  6.9 MB
+ways_tags.csv ......... 15.2 MB
+ways_nodes.cv ......... 10.2 MB 
+``` 
+## Number of nodes
+```sql
+sqlite> SELECT COUNT(*) FROM nodes;
+```
+515172
+
+## Number of ways
+```sql
+sqlite> SELECT COUNT(*) FROM ways;
+```
+116417
 
 ## Other ideas about dataset
 * language of street names
