@@ -95,7 +95,7 @@ For thouse websites, which doesn't have scheme, I add scheme http, because not e
 ## Overview of Data
 This section contains some overview statistics about the dataset and the SQL queries used to gather them.
 
-## File sizes
+#### File sizes
 ```
 Bishkek.osm ...........121.0 MB
 Bishkek.db ............ 64.6 MB
@@ -105,21 +105,21 @@ ways.csv ..............  6.9 MB
 ways_tags.csv ......... 15.2 MB
 ways_nodes.cv ......... 10.2 MB 
 ``` 
-## Number of nodes
+#### Number of nodes
 ```sql
 sqlite> SELECT COUNT(*) FROM nodes;
 ```
 ```
 515172
 ```
-## Number of ways
+#### Number of ways
 ```sql
 sqlite> SELECT COUNT(*) FROM ways;
 ```
 ```
 116417
 ```
-## Number of unique users
+#### Number of unique users
 ```sql
 sqlite> SELECT COUNT(*) 
 FROM (SELECT uid FROM nodes UNION SELECT uid FROM ways);
@@ -127,7 +127,7 @@ FROM (SELECT uid FROM nodes UNION SELECT uid FROM ways);
 ```
 687
 ```
-## Top 15 amenities
+#### Top 15 amenities
 ```sql
 sqlite> SELECT value, COUNT(*) as num 
 FROM nodes_tags WHERE key='amenity' 
@@ -151,7 +151,7 @@ payment_terminal | 53
 kindergarten     | 43
 bar              | 40
 ```
-## Top 10 cuisines
+#### Top 10 cuisines
 ```sql
 sqlite> SELECT value, COUNT(*) as num 
 FROM nodes_tags WHERE key='cuisine' 
@@ -170,7 +170,7 @@ turkish       | 6
 italian       | 5
 pizza         | 5
 ```
-## The top 10 streets with the largest number of associated nodes
+#### The top 10 streets with the largest number of associated nodes
 
 ```sql
 sqlite> SELECT ways_tags.value, COUNT(ways_nodes.node_id) as num 
@@ -191,7 +191,7 @@ ORDER BY num DESC LIMIT 10;
 Сыдыкова улица             | 42
 Уметалиева Темиркула улица | 41
 ```
-## The top 10 nodes with the largest number of corrections
+#### The top 10 nodes with the largest number of corrections
 ```sql
 >sqlite SELECT nodes_tags.value, nodes.version 
 FROM nodes JOIN nodes_tags 
@@ -211,11 +211,18 @@ Alex.kg                       | 9
 Библиотека №5                 | 9
 ```
 ## Other ideas about dataset
-* language of street names
-* old and new street names
-* add postcodes by street address
-* check if the three-digit short phone number exists
-* check if the websites are reachable using requests
+This section describes additional suggestions for improving and analyzing the data.
+
+#### Update of street names
+After the Collapse of the Sovied Union Kyrgyzstan became an independent country and some of streets with Soviet names was renamed to Kyrgyz names. During auditing I discovered that some data contain old Soviet street names and need to be updated. [This website](http://www.catalog.kg/poleznaja-informacija/pereimenovanye-ulicy-g-bishkek.html) contains information about renaming. The problem is that some old named streets was splitted and different parts got a different new names. So only old street name is not enough to get new street names, we also need to know what part of street is meant in particular node. And retrieving this kind of information seems to be difficult.
+
+#### Accuracy of postcode
+I had a theorethical idea to validate postcodes by street address, using information from official kyrgyz post website. But then I discovered that information on this website is incomplete: some existing postcodes and streets doesn't mentioned there. So This kind of validation is impossible, as far as we don't have complete information about correspondance of postcodes to street address.
+
+#### Accuracy of website
+During auditing websites I discovered that some of websites don't exist. It would be a nice improvement to check programmatically if the websites are reachable. Ablity to check reachability of particular url also would be useful for choosing 'https' scheme when it possible (it's preferred over 'http' scheme). Unfortunately Python < 2.7.9 doesn't include native support for Serever-Name-Indication, which is needed for processing some urls. This makes [problematic to use requests library](http://docs.python-requests.org/en/master/community/faq/) for suggested improvement. However, website.py contains commented implementation, which probably would work on some computers.
+
+
  
 
 
