@@ -127,7 +127,7 @@ FROM (SELECT uid FROM nodes UNION SELECT uid FROM ways);
 ```
 687
 ```
-#### Top 15 amenities
+#### Top 10 amenities
 ```sql
 sqlite> SELECT value, COUNT(*) as num 
 FROM nodes_tags WHERE key='amenity' 
@@ -135,23 +135,9 @@ GROUP BY value
 ORDER BY num DESC LIMIT 15;
 ```
 ```
-cafe             | 382
-pharmacy         | 197
-parking          | 126
-car_wash         | 123
-restaurant       | 123
-fuel             | 94
-bank             | 92
-atm              | 77
-fast_food        | 77
-hospital         | 75
-bench            | 65
-police           | 61
-payment_terminal | 53
-kindergarten     | 43
-bar              | 40
+![alt text](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top10_amenities.png)
 ```
-#### Top 10 cuisines
+#### Top 15 cuisines
 ```sql
 sqlite> SELECT value, COUNT(*) as num 
 FROM nodes_tags WHERE key='cuisine' 
@@ -159,16 +145,7 @@ GROUP BY value
 ORDER BY num DESC LIMIT 10;
 ```
 ```
-regional      | 23
-international | 19
-chinese       | 9
-asian         | 7
-coffee_shop   | 7
-burger        | 6
-korean        | 6
-turkish       | 6
-italian       | 5
-pizza         | 5
+![alt text](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top15_cuisines.png)
 ```
 #### The top 10 streets with the largest number of associated nodes
 
