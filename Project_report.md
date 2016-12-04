@@ -22,30 +22,9 @@ After downloading map of the Bishkek area and running audit functions, I noticed
 ### Streets cleaning
 At first, I decided to change street type so the street field had format: ```<street name> <full street type>```. For this I implemented function fix_street_type in street.py. This function checks the beginning and the end of raw street value and correct abbreviated or translated street type to their respective mappings. Also this function handle consistency of street type position: it places corrected street type after street name.
 
-To deal with correcting streets without street types I did two things:
-* tried to get obbreviated street type by street name from [offical kyrgyz post site](http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9)
-* got street type from manually prepared map of 30 existing street names
-
-So the street correction function looked like:
-```python 
-def fix_street(raw_street, expected_streets):
-    # Check manually prepared map of existing raw streets
-    if raw_street in manual_street_name_mapping:
-        return manual_street_name_mapping[raw_street]
-    # Try to fix street type to standard format
-    fixed_street = fix_street_type(raw_street)
-    if fixed_street == None:
-        # Try to get street type from expected streets (from kyrgyz post website)
-        matched_street = None
-        for street in expected_streets:
-            if street.find(raw_street.strip()) != -1:
-                matched_street = street
-                break
-        fixed_street = fix_street_type(matched_street)
-        if fixed_street == None:
-            return None
-    return fixed_street
-```
+To deal with correcting streets without street types function fix_street in street.py does two things:
+* tries to get obbreviated street type by street name from [offical kyrgyz post site](http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9)
+* gets street type from manually prepared map of 30 existing street names
 
 ### Postal codes cleaning
 As was mentioned above, processed dataset contains data for Bishkek and some adjacent areas. So I didn't require postal code to be valid only for Bishkek. Otherwise, I only checked if it's valid for Kyrgyzstan: it has to be exacly six digits and first two digits should be "72". So here is the postcode validity function:
@@ -103,8 +82,8 @@ nodes.csv ............. 42.0 MB
 nodes_tags.csv ........  0.6 MB
 ways.csv ..............  6.9 MB
 ways_tags.csv ......... 15.2 MB
-ways_nodes.cv ......... 10.2 MB 
-``` 
+ways_nodes.cv ......... 10.2 MB
+```
 #### Number of nodes
 ```sql
 sqlite> SELECT COUNT(*) FROM nodes;
@@ -121,7 +100,7 @@ sqlite> SELECT COUNT(*) FROM ways;
 ```
 #### Number of unique users
 ```sql
-sqlite> SELECT COUNT(*) 
+sqlite> SELECT COUNT(*)
 FROM (SELECT uid FROM nodes UNION SELECT uid FROM ways);
 ```
 ```
@@ -129,28 +108,28 @@ FROM (SELECT uid FROM nodes UNION SELECT uid FROM ways);
 ```
 #### Top 10 amenities
 ```sql
-sqlite> SELECT value, COUNT(*) as num 
-FROM nodes_tags WHERE key='amenity' 
-GROUP BY value 
+sqlite> SELECT value, COUNT(*) as num
+FROM nodes_tags WHERE key='amenity'
+GROUP BY value
 ORDER BY num DESC LIMIT 10;
 ```
-![Bar chart of top 10 amenities](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top10_amenities.png)
+![Bar chart of top 10 amenities](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top10_amenities.png "Top 10 ameneties")
 
 #### Top 15 cuisines
 ```sql
-sqlite> SELECT value, COUNT(*) as num 
-FROM nodes_tags WHERE key='cuisine' 
-GROUP BY value 
+sqlite> SELECT value, COUNT(*) as num
+FROM nodes_tags WHERE key='cuisine'
+GROUP BY value
 ORDER BY num DESC LIMIT 15;
 ```
-![Pie chart of top 15 cuisines](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top15_cuisines.png)
+![Pie chart of top 15 cuisines](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top15_cuisines.png "Top 15 cuisines")
 #### The top 10 streets with the largest number of associated nodes
 
 ```sql
-sqlite> SELECT ways_tags.value, COUNT(ways_nodes.node_id) as num 
-FROM ways_nodes JOIN ways_tags 
-WHERE ways_nodes.id=ways_tags.id AND ways_tags.key='street' 
-GROUP BY ways_nodes.id 
+sqlite> SELECT ways_tags.value, COUNT(ways_nodes.node_id) as num
+FROM ways_nodes JOIN ways_tags
+WHERE ways_nodes.id=ways_tags.id AND ways_tags.key='street'
+GROUP BY ways_nodes.id
 ORDER BY num DESC LIMIT 10;
 ```
 ```
@@ -167,9 +146,9 @@ ORDER BY num DESC LIMIT 10;
 ```
 #### The top 10 nodes with the largest number of corrections
 ```sql
->sqlite SELECT nodes_tags.value, nodes.version 
-FROM nodes JOIN nodes_tags 
-WHERE nodes.id = nodes_tags.id AND nodes_tags.key='name' 
+>sqlite SELECT nodes_tags.value, nodes.version
+FROM nodes JOIN nodes_tags
+WHERE nodes.id = nodes_tags.id AND nodes_tags.key='name'
 ORDER BY nodes.version DESC LIMIT 10;
 ```
 ```
@@ -195,9 +174,3 @@ I had a theorethical idea to validate postcodes by street address, using informa
 
 #### Accuracy of website
 During auditing websites I discovered that some of websites don't exist. It would be a nice improvement to check programmatically if the websites are reachable. Ablity to check reachability of particular url also would be useful for choosing 'https' scheme when it possible (it's preferred over 'http' scheme). Unfortunately Python < 2.7.9 doesn't include native support for Serever-Name-Indication, which is needed for processing some urls. This makes [problematic to use requests library](http://docs.python-requests.org/en/master/community/faq/) for suggested improvement. However, website.py contains commented implementation, which probably would work on some computers.
-
-
- 
-
-
-
