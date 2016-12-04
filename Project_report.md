@@ -113,7 +113,7 @@ FROM nodes_tags WHERE key='amenity'
 GROUP BY value
 ORDER BY num DESC LIMIT 10;
 ```
-![Bar chart of top 10 amenities](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top10_amenities.png "Top 10 ameneties")
+![Bar chart of top 10 amenities](top10_amenities.png "Top 10 ameneties")
 
 #### Top 15 cuisines
 ```sql
@@ -122,7 +122,7 @@ FROM nodes_tags WHERE key='cuisine'
 GROUP BY value
 ORDER BY num DESC LIMIT 15;
 ```
-![Pie chart of top 15 cuisines](https://github.com/NadiyaSitdykova/Data_Analyst_Nanodegree/blob/master/Project3/top15_cuisines.png "Top 15 cuisines")
+![Pie chart of top 15 cuisines](top15_cuisines.png "Top 15 cuisines")
 #### The top 10 streets with the largest number of associated nodes
 
 ```sql
