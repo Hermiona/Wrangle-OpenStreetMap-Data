@@ -1,9 +1,16 @@
 import csv
-import codecs
+import sys, codecs
 import re
 import xml.etree.cElementTree as ET
+import street
+import phone
+import postcode
+import website
 
-OSM_PATH = "cleaned_Bishkek.osm"
+# url of page of kyrgyz post website, which contains the most of existing streets in Kyrgyzstan (but not all). Will be scraped for needs of data cleaning
+kyrgyz_post_url = "http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9"
+
+OSM_PATH = "Bishkek.osm"
 
 NODES_PATH = "nodes.csv"
 NODE_TAGS_PATH = "nodes_tags.csv"
@@ -42,8 +49,37 @@ def shape_element(element, node_attr_fields=NODE_FIELDS, way_attr_fields=WAY_FIE
         else:
             tag_attribs['type'] = default_tag_type
             tag_attribs['key'] = k
+
+
+        # perform the cleaning
+        if k == "addr:street":
+            fixed_street = street.fix_street(tag.attrib['v'], expected_streets)
+            if fixed_street:
+                tag_attribs['value'] = fixed_street
+            else:
+                pass
+        elif k == "phone":
+            fixed_phone = phone.fix_phone(tag.attrib['v'])
+            if fixed_phone:
+                tag_attribs['value'] = fixed_phone
+            else:
+                pass
+        elif k == "addr:postcode":
+            fixed_postcode = postcode.fix_postcode(tag.attrib['v'])
+            if fixed_postcode:
+                tag_attribs['value'] = fixed_postcode
+            else:
+                pass
+        elif k == "website":
+            fixed_website = website.fix_website(tag.attrib['v'])
+            if fixed_website:
+                tag_attribs['value'] = fixed_website
+            else:
+                pass
+        else:
+            tag_attribs['value'] = tag.attrib['v']
+
         tag_attribs['id'] = element.attrib['id']
-        tag_attribs['value'] = tag.attrib['v']
         tags.append(tag_attribs)
 
     if element.tag == 'node':
@@ -125,4 +161,6 @@ def process_map(file_in):
 
 
 if __name__ == '__main__':
+    #scrape necessary for cleaning data
+    expected_streets = street.get_expected_streets(kyrgyz_post_url)
     process_map(OSM_PATH)

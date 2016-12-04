@@ -105,7 +105,7 @@ def get_expected_streets(url):
 
 # Takes a string of raw street and returns it with street type in standard format if possible. Otherwise returns None.
 def fix_street_type(raw_street):
-    if raw_street == None:
+    if not raw_street:
         return None
     # check if the street type in the end of raw street
     street_type = unicode(raw_street.strip().split(" ")[-1])
@@ -130,6 +130,9 @@ def fix_street_type(raw_street):
 # Takes a string of raw street and returns it in standard format. Manually prepared fixing is performing for existing raw streets.
 # However, for non existing streets function returns None.
 def fix_street(raw_street, expected_streets):
+    # check if raw street is already a street in standard format
+    if unicode(raw_street.strip().split(" ")[-1]) in expected_street_types:
+        return raw_street
     # Check manually prepared map of existing raw streets
     if raw_street in manual_street_name_mapping:
         return manual_street_name_mapping[raw_street]
@@ -143,7 +146,7 @@ def fix_street(raw_street, expected_streets):
                 matched_street = street
                 break
         fixed_street = fix_street_type(matched_street)
-        if fixed_street == None:
+        if not fixed_street:
             return None
     return fixed_street
 
@@ -158,13 +161,12 @@ def clean_street(filename):
             for tag in child.iter("tag"):
                 if tag.attrib['k'] == "addr:street":
                     raw_street = tag.attrib['v']
-                    if unicode(raw_street.strip().split(" ")[-1]) not in expected_street_types:
-                        fixed_street = fix_street(raw_street, expected_streets)
-                        if fixed_street == None:
-                            #print(raw_street + " is not a street")
-                            child.remove(tag)
-                        else:
-                            tag.attrib['v'] = fixed_street
+                    fixed_street = fix_street(raw_street, expected_streets)
+                    if not fixed_street:
+                        #print(raw_street + " is not a street")
+                        child.remove(tag)
+                    else:
+                        tag.attrib['v'] = fixed_street
     tree.write("cleaned_street_" + filename, encoding='utf-8')
 
 

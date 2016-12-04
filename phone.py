@@ -7,6 +7,20 @@ formatted_phone_re = re.compile(r'(\+996\s[0-9]{3}\s[0-9]{6}(;\s)?)+$')
 # Regex for a sequence of digits which could reptresent a valid for Kyrgyzstan phone number
 valid_phone_digits_re = re.compile(r'(996|0|9960|0996)?([0-9]{3})?[0-9]{6}$')
 
+# Returns list of phones which couldn't be a valid for Kyrgyzstan phone number
+def audit_phone(filename):
+    unexpected_phones = []
+    with open(filename, 'r') as file:
+        for _, elem in ET.iterparse(file, events=("start",)):
+            if elem.tag == "node" or elem.tag == "way":
+                for tag in elem.iter("tag"):
+                    if tag.attrib['k'] == "phone":
+                        phone = tag.attrib['v']
+                        if not formatted_phone_re.match(phone):
+                            unexpected_phones.append(phone)
+    return unexpected_phones
+
+
 # Takes string with formatted phone number and removes all symbols except digits
 def leave_only_digits(phone):
     phone_digits = ""
@@ -48,18 +62,26 @@ def fix_format(phone):
     fixed_phone = "+" + phone_digits[:3] + " " + phone_digits[3:6] + " " + phone_digits[6:]
     return fixed_phone
 
-# Returns list of phones which couldn't be a valid for Kyrgyzstan phone number
-def audit_phone(filename):
-    unexpected_phones = []
-    with open(filename, 'r') as file:
-        for _, elem in ET.iterparse(file, events=("start",)):
-            if elem.tag == "node" or elem.tag == "way":
-                for tag in elem.iter("tag"):
-                    if tag.attrib['k'] == "phone":
-                        phone = tag.attrib['v']
-                        if not formatted_phone_re.match(phone):
-                            unexpected_phones.append(phone)
-    return unexpected_phones
+def fix_phone(raw_phone):
+    # if there is more than one phone number
+    phones = raw_phone.split(";")
+    if len(phones) == 1:
+        phones = raw_phone.split(",")
+    # monkey patch
+    if raw_phone == "0(312)88-14-14 0(556)11-22-33":
+        phones = raw_phone.split(" ")
+    fixed_phones = []
+    for phone in phones:
+        fixed_phones.append(fix_format(phone))
+    if len(fixed_phones) == 1:
+        fixed_phone = fixed_phones[0]
+    else:
+        fixed_phone = ""
+        for phone in fixed_phones:
+            if phone != None:
+                fixed_phone += phone + "; "
+        fixed_phone = fixed_phone[:-2]
+    return fixed_phone
 
 # Creates new osm xml file with phone numbers in standard format
 def clean_phone(filename):
@@ -70,28 +92,10 @@ def clean_phone(filename):
             for tag in child.iter("tag"):
                 if tag.attrib['k'] == "phone":
                     raw_phone = tag.attrib['v']
-                    #if there is more than one phone number
-                    phones = raw_phone.split(";")
-                    if len(phones) == 1:
-                        phones = raw_phone.split(",")
-                    #monkey patch
-                    if raw_phone == "0(312)88-14-14 0(556)11-22-33":
-                        phones = raw_phone.split(" ")
-                    fixed_phones = []
-                    for phone in phones:
-                        fixed_phones.append(fix_format(phone))
-                    if len(fixed_phones) == 1:
-                        fixed_phone = fixed_phones[0]
-                        if fixed_phone == None:
-                            child.remove(tag)
-                        else:
-                            tag.attrib['v'] = fixed_phone
+                    fixed_phone = fixed_phone(raw_phone)
+                    if not fixed_phone:
+                        child.remove(tag)
                     else:
-                        fixed_phone = ""
-                        for phone in fixed_phones:
-                            if phone != None:
-                                fixed_phone += phone + "; "
-                        fixed_phone = fixed_phone[:-2]
                         tag.attrib['v'] = fixed_phone
 
     tree.write("cleaned_phone_" + filename, encoding='utf-8')
