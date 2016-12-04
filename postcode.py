@@ -1,7 +1,7 @@
 import xml.etree.cElementTree as ET
 
-# Returns dictionary of unexpected for Kyrgyzstan postcodes and count of their occurancies
 def audit_postcode(filename):
+    """Returns dictionary of unexpected for Kyrgyzstan postcodes and count of their occurancies"""
     unexpected_postcodes = {}
     with open(filename, 'r') as file:
         for _, elem in ET.iterparse(file, events=("start",)):
@@ -15,22 +15,21 @@ def audit_postcode(filename):
                             unexpected_postcodes[postcode] += 1
     return unexpected_postcodes
 
-# Checks if the postcode is valid for Kyrgyzstan
 def is_valid_postcode(postcode):
+    """Checks if the postcode is valid for Kyrgyzstan"""
     if len(postcode) != 6 or postcode[:2] != "72":
         return False
     return postcode.isdigit()
 
 def fix_postcode(raw_postcode):
+    """Takes raw value of postcode entry and return valid postcode if possible. Otherwise return None"""
     if not is_valid_postcode(raw_postcode):
         return None
     else:
         return raw_postcode
 
-
-
-# Createds new osm xml file with valid for Kyrgyzstan postcodes
 def clean_postcode(filename):
+    """Creates new osm xml file with valid for Kyrgyzstan postcodes"""
     tree = ET.parse(filename)
     root = tree.getroot()
     for child in root:

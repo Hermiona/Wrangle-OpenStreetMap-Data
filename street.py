@@ -77,8 +77,8 @@ manual_street_name_mapping = {
     unicode("Дабан", 'utf8'): unicode("Дабан улица", 'utf8')
 }
 
-# Returns list of streets from osm xml, which doesn't have an expected street type in the end
 def audit_street(filename):
+    """Returns list of streets from osm xml, which doesn't have an expected street type in the end"""
     unexpected_streets = set()
     with open(filename, 'r') as file:
         for _ , elem in ET.iterparse(file, events=("start",)):
@@ -90,8 +90,8 @@ def audit_street(filename):
                             unexpected_streets.add(raw_street)
     return unexpected_streets
 
-# Takes url (hardcoded url of kyrgyz post website) and returns set of existing street names with street types
 def get_expected_streets(url):
+    """Takes url (hardcoded url of kyrgyz post website) and returns set of existing street names with street types"""
     page = requests.get(url)
     soup = BeautifulSoup(page.text, "lxml")
     tds = []
@@ -103,8 +103,8 @@ def get_expected_streets(url):
         expected_streets.add(street)
     return expected_streets
 
-# Takes a string of raw street and returns it with street type in standard format if possible. Otherwise returns None.
 def fix_street_type(raw_street):
+    """Takes a string of raw street and returns it with street type in standard format if possible. Otherwise returns None."""
     if not raw_street:
         return None
     # check if the street type in the end of raw street
@@ -126,10 +126,10 @@ def fix_street_type(raw_street):
                     return None
     return street_without_type + street_type_mapping[street_type]
 
-
-# Takes a string of raw street and returns it in standard format. Manually prepared fixing is performing for existing raw streets.
-# However, for non existing streets function returns None.
 def fix_street(raw_street, expected_streets):
+    """Takes a string of raw street and returns it in standard format.
+    Manually prepared fixing is performing for existing raw streets.
+    However, for non existing streets function returns None."""
     # check if raw street is already a street in standard format
     if unicode(raw_street.strip().split(" ")[-1]) in expected_street_types:
         return raw_street
@@ -150,9 +150,8 @@ def fix_street(raw_street, expected_streets):
             return None
     return fixed_street
 
-
-# Creates new osm xml file, which contains all streets in standard format: <street name> <full street type>
 def clean_street(filename):
+    """Creates new osm xml file, which contains all streets in standard format: <street name> <full street type>"""
     tree = ET.parse(filename)
     root = tree.getroot()
     expected_streets = get_expected_streets(kyrgyz_post_url)

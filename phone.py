@@ -7,8 +7,9 @@ formatted_phone_re = re.compile(r'(\+996\s[0-9]{3}\s[0-9]{6}(;\s)?)+$')
 # Regex for a sequence of digits which could reptresent a valid for Kyrgyzstan phone number
 valid_phone_digits_re = re.compile(r'(996|0|9960|0996)?([0-9]{3})?[0-9]{6}$')
 
-# Returns list of phones which couldn't be a valid for Kyrgyzstan phone number
 def audit_phone(filename):
+    """Processes phone numbers in osm file and returns list of phones
+    which couldn't be a valid for Kyrgyzstan phone number"""
     unexpected_phones = []
     with open(filename, 'r') as file:
         for _, elem in ET.iterparse(file, events=("start",)):
@@ -20,18 +21,17 @@ def audit_phone(filename):
                             unexpected_phones.append(phone)
     return unexpected_phones
 
-
-# Takes string with formatted phone number and removes all symbols except digits
 def leave_only_digits(phone):
+    """Takes string with formatted phone number and removes all symbols except digits"""
     phone_digits = ""
     for symbol in phone:
         if symbol.isdigit():
             phone_digits += symbol
     return phone_digits
 
-# Takes a single phone number and returns phone in standard format if it could be a valid phone number.
-# Otherwise returns None
 def fix_format(phone):
+    """ Takes a single phone number and returns phone in standard format if it could be
+    a valid phone number. Otherwise returns None"""
     phone_digits = leave_only_digits(phone)
 
     # process short codes such as 911
@@ -63,6 +63,8 @@ def fix_format(phone):
     return fixed_phone
 
 def fix_phone(raw_phone):
+    """Takes raw value of phone entry and convert it into one or more phones
+    in standard format. Returns None when such convertion is impossible"""
     # if there is more than one phone number
     phones = raw_phone.split(";")
     if len(phones) == 1:
@@ -83,8 +85,8 @@ def fix_phone(raw_phone):
         fixed_phone = fixed_phone[:-2]
     return fixed_phone
 
-# Creates new osm xml file with phone numbers in standard format
 def clean_phone(filename):
+    """Creates new osm xml file with phone numbers in standard format"""
     tree = ET.parse(filename)
     root = tree.getroot()
     for child in root:

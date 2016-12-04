@@ -6,8 +6,8 @@ import requests
 # (which follows best practices from https://wiki.openstreetmap.org/wiki/Key:website)
 website_re = re.compile(r'https?://[a-z0-9\./]*')
 
-# Returns list of websites which are not in standard format
 def audit_website(filename):
+    """Returns list of websites which are not in standard format"""
     unexpected_websites = []
     with open(filename, 'r') as file:
         for _, elem in ET.iterparse(file, events=("start",)):
@@ -20,19 +20,21 @@ def audit_website(filename):
     return unexpected_websites
 
 def url_is_good(url):
+    """Checks if the url is in standard format"""
     return website_re.match(url)
     # possible validation of reachability of website
     # http_response = requests.get(url)
     # return http_response < 400:
 
 def fix_website(raw_website):
+    """Returns website in standard format"""
     if url_is_good(raw_website):
         return raw_website
     else:
         return "http://" + raw_website
 
-# Creates new osm xml file with websites in standard format
 def clean_website(filename):
+    """Creates new osm xml file with websites in standard format"""
     tree = ET.parse(filename)
     root = tree.getroot()
     for child in root:
