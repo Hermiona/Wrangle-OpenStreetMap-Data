@@ -102,7 +102,7 @@ def get_expected_streets(url):
     #for street in tds[::3]:
     #    expected_streets.add(street)
     #return expected_streets
-    retrun []
+    return []
 
 def fix_street_type(raw_street):
     """Takes a string of raw street and returns it with street type in standard format if possible. Otherwise returns None."""
