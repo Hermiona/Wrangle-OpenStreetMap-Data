@@ -5,7 +5,5 @@ python:
   - "3.4"
   - "3.5"
 # command to install dependencies
-# install: "pip install -r requirements.txt"
-install: "pip install bs4"
-# command to run tests
+install: "pip install -r requirements.txt"
 script: python audit.py phone Bishkek_sample.osm
