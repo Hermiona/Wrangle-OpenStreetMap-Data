@@ -92,16 +92,17 @@ def audit_street(filename):
 
 def get_expected_streets(url):
     """Takes url (hardcoded url of kyrgyz post website) and returns set of existing street names with street types"""
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, "lxml")
-    tds = []
-    for table in soup.find_all("table"):
-        for td in table.find_all("td"):
-            tds.append(td.get_text().strip())
-    expected_streets = set()
-    for street in tds[::3]:
-        expected_streets.add(street)
-    return expected_streets
+    #page = requests.get(url)
+    #soup = BeautifulSoup(page.text, "lxml")
+    #tds = []
+    #for table in soup.find_all("table"):
+    #    for td in table.find_all("td"):
+    #        tds.append(td.get_text().strip())
+    #expected_streets = set()
+    #for street in tds[::3]:
+    #    expected_streets.add(street)
+    #return expected_streets
+    retrun []
 
 def fix_street_type(raw_street):
     """Takes a string of raw street and returns it with street type in standard format if possible. Otherwise returns None."""
