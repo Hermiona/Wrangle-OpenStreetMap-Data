@@ -2,7 +2,7 @@
 import xml.etree.cElementTree as ET
 from bs4 import BeautifulSoup
 #import requests
-import urllib2
+#import urllib2
 
 # url of page of kyrgyz post website, which contains the most of existing streets in Kyrgyzstan (but not all)
 kyrgyz_post_url = "http://kyrgyzpost.kg/ru/zipcodes-search.html?e%5B_itemcategory%5D%5B%5D=&e%5B6e61c763-659a-4bf2-8d0b-1fd1151b357f%5D=&limit=all&order=alpha&logic=and&send-form=%D0%98%D1%81%D0%BA%D0%B0%D1%82%D1%8C&controller=search&Itemid=356&option=com_zoo&task=filter&exact=0&type=otdelenie-svyazi&app_id=9"
