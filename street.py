@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import xml.etree.cElementTree as ET
 from bs4 import BeautifulSoup
-import requests
+#import requests
 import urllib2
 
 # url of page of kyrgyz post website, which contains the most of existing streets in Kyrgyzstan (but not all)
